@@ -7,10 +7,12 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
+
     @Override
     public Item addItem(Long userId, ItemDto item) {
         return itemStorage.addItem(userId, item);
