@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 public class UserDto {
     private final String name;
     @NotNull(message = "Email must not be null")
-    @Email (message = "Email not valid")
+    @Email(message = "Email not valid")
     private final String email;
 
 }

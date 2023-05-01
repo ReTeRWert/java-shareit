@@ -78,8 +78,8 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     public List<Item> searchItems(String text) {
         return items.values().stream()
                 .filter(o -> o.getAvailable().equals(true)
-                && !text.isBlank()
-                && o.getDescription()
+                        && !text.isBlank()
+                        && o.getDescription()
                         .concat(o.getName()).toLowerCase()
                         .contains(text.toLowerCase()))
                 .collect(Collectors.toList());
