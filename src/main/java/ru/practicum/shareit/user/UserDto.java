@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.dto;
+package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class UserDto {
+    private final Long id;
     private final String name;
     @NotNull(message = "Email must not be null")
     @Email(message = "Email not valid")

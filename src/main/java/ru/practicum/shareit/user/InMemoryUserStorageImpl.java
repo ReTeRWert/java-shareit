@@ -1,11 +1,8 @@
-package ru.practicum.shareit.user.storage;
+package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.model.UserMapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +12,7 @@ import java.util.Map;
 @Component
 public class InMemoryUserStorageImpl implements UserStorage {
 
-    private Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
     private static Long id = 1L;
 
     @Override
@@ -40,7 +37,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
     @Override
     public User updateUser(Long userId, UserDto user) {
         checkEmail(userId, user);
-        User updatedUser = getUser(userId);
+        User updatedUser = users.get(userId);
         if (user.getEmail() != null) {
             updatedUser = updatedUser
                     .toBuilder()
@@ -56,7 +53,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
         }
 
         users.put(userId, updatedUser);
-        return users.get(userId);
+        return updatedUser;
     }
 
     @Override
