@@ -27,15 +27,16 @@ public class InMemoryUserStorageImpl implements UserStorage {
     }
 
     @Override
-    public User addUser(UserDto user) {
+    public User addUser(User user) {
         checkEmail(id, user);
-        User newUser = UserMapper.toUser(id++, user);
+        User newUser = user.toBuilder().id(id++)
+                .build();
         users.put(newUser.getId(), newUser);
         return newUser;
     }
 
     @Override
-    public User updateUser(Long userId, UserDto user) {
+    public User updateUser(Long userId, User user) {
         checkEmail(userId, user);
         User updatedUser = users.get(userId);
         if (user.getEmail() != null) {
@@ -68,7 +69,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
         }
     }
 
-    private void checkEmail(Long userId, UserDto user) {
+    private void checkEmail(Long userId, User user) {
         if (users.values().stream()
                 .anyMatch(o -> o.getEmail().equalsIgnoreCase(user.getEmail())
                         && !o.getId().equals(userId)))

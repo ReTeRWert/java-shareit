@@ -7,9 +7,9 @@ public interface UserStorage {
 
     List<User> getUsers();
 
-    User addUser(UserDto user);
+    User addUser(User user);
 
-    User updateUser(Long userId, UserDto user);
+    User updateUser(Long userId, User user);
 
     void deleteUser(Long userId);
 

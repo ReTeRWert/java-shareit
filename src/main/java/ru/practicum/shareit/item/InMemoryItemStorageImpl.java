@@ -3,8 +3,6 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserStorage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,22 +15,23 @@ import java.util.stream.Collectors;
 public class InMemoryItemStorageImpl implements ItemStorage {
 
     private final Map<Long, Item> items = new HashMap<>();
-    private final UserStorage userStorage;
     private Long itemId = 1L;
 
     @Override
-    public Item addItem(Long userId, ItemDto item) {
-        User owner = userStorage.getUser(userId);
-        Item newItem = ItemMapper.toItem(itemId++, owner, item);
+    public Item addItem(Item item) {
+
+        Item newItem = item.toBuilder().id(itemId++)
+                .build();
+
         items.put(newItem.getId(), newItem);
         return newItem;
     }
 
     @Override
-    public Item updateItem(Long userId, Long itemId, ItemDto item) {
+    public Item updateItem(Long itemId, Item item) {
         Item updatedItem = getItem(itemId);
 
-        if (!updatedItem.getOwner().getId().equals(userId)) {
+        if (!updatedItem.getOwner().getId().equals(item.getOwner().getId())) {
             throw new NotFoundException("This user cannot edit this item");
         }
 

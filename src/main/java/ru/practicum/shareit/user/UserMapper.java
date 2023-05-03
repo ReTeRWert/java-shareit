@@ -10,8 +10,8 @@ public class UserMapper {
         );
     }
 
-    public static User toUser(Long userId, UserDto user) {
-        return new User(userId,
+    public static User toUser(UserDto user) {
+        return new User(user.getId(),
                 user.getName(),
                 user.getEmail());
     }

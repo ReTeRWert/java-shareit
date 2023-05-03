@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,17 +13,25 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemStorage itemStorage;
+    private final UserStorage userStorage;
 
     @Override
     public ItemDto addItem(Long userId, ItemDto item) {
+        User owner = userStorage.getUser(userId);
+        Item newItem = ItemMapper.toItem(owner, item);
+
         return ItemMapper.toItemDto(
-                itemStorage.addItem(userId, item));
+                itemStorage.addItem(newItem));
     }
 
     @Override
     public ItemDto updateItem(Long userId, Long itemId, ItemDto item) {
+        User owner = userStorage.getUser(userId);
+
+        Item updatedItem = ItemMapper.toItem(owner, item);
+
         return ItemMapper.toItemDto(
-                itemStorage.updateItem(userId, itemId, item));
+                itemStorage.updateItem(itemId, updatedItem));
     }
 
     @Override

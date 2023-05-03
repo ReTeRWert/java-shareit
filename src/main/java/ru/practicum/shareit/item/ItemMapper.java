@@ -4,8 +4,8 @@ import ru.practicum.shareit.user.User;
 
 public class ItemMapper {
 
-    public static Item toItem(Long itemId, User owner, ItemDto item) {
-        return new Item(itemId,
+    public static Item toItem(User owner, ItemDto item) {
+        return new Item(item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
