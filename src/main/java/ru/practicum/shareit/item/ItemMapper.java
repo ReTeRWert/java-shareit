@@ -2,7 +2,7 @@ package ru.practicum.shareit.item;
 
 public class ItemMapper {
 
-    public static Item toItem(ItemDto itemDto) {
+    public static Item dtoToItem(ItemDto itemDto) {
         return new Item(
                 itemDto.getName(),
                 itemDto.getDescription(),
@@ -10,7 +10,7 @@ public class ItemMapper {
         );
     }
 
-    public static ItemDto toItemDto(Item item) {
+    public static ItemDto itemToDto(Item item) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
@@ -20,7 +20,7 @@ public class ItemMapper {
         );
     }
 
-    public static ItemInfoDto toItemInfoDto(Item item) {
+    public static ItemInfoDto itemToInfoDto(Item item) {
         return new ItemInfoDto(
                 item.getId(),
                 item.getName(),

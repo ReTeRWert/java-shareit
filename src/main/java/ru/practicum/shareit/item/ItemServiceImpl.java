@@ -4,18 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingJpaRepository;
 import ru.practicum.shareit.booking.BookingMapper;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.exeption.BadRequestException;
 import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
-import ru.practicum.shareit.item.comment.CommentJpaRepository;
 import ru.practicum.shareit.item.comment.CommentMapper;
+import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserJpaRepository;
+import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,28 +29,28 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
 
-    private final ItemJpaRepository itemJpaRepository;
-    private final UserJpaRepository userJpaRepository;
-    private final CommentJpaRepository commentJpaRepository;
-    private final BookingJpaRepository bookingJpaRepository;
+    private final ItemRepository itemJpaRepository;
+    private final UserService userService;
+    private final CommentRepository commentJpaRepository;
+    private final BookingRepository bookingJpaRepository;
 
     @Transactional
     @Override
     public ItemDto addItem(Long userId, ItemDto itemDto) {
-        Item item = ItemMapper.toItem(itemDto);
+        Item item = ItemMapper.dtoToItem(itemDto);
 
-        User owner = checkUser(userId);
+        User owner = userService.getUserIfExist(userId);
 
         item.setOwner(owner);
 
-        return ItemMapper.toItemDto(itemJpaRepository.save(item));
+        return ItemMapper.itemToDto(itemJpaRepository.save(item));
     }
 
     @Transactional
     @Override
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
 
-        Item itemToUpdate = checkItem(itemId);
+        Item itemToUpdate = getItemIfExist(itemId);
 
         if (!Objects.equals(itemToUpdate.getOwner().getId(), userId)) {
             throw new NotFoundException("User not owner");
@@ -66,19 +66,19 @@ public class ItemServiceImpl implements ItemService {
             itemToUpdate.setAvailable(itemDto.getAvailable());
         }
 
-        return ItemMapper.toItemDto(itemJpaRepository.save(itemToUpdate));
+        return ItemMapper.itemToDto(itemJpaRepository.save(itemToUpdate));
     }
 
     @Transactional
     @Override
     public ItemDto getItem(Long userId, Long itemId) {
 
-        Item item = checkItem(itemId);
-        ItemDto itemDto = ItemMapper.toItemDto(item);
+        Item item = getItemIfExist(itemId);
+        ItemDto itemDto = ItemMapper.itemToDto(item);
 
         List<Comment> comments = commentJpaRepository.findAllByItemIdIs(itemId);
         List<CommentDto> commentDto = comments.stream()
-                .map(CommentMapper::toCommentDto)
+                .map(CommentMapper::commentToDto)
                 .collect(Collectors.toList());
 
         itemDto.setComments(commentDto);
@@ -97,14 +97,14 @@ public class ItemServiceImpl implements ItemService {
 
         List<ItemDto> ownerItems = itemJpaRepository.findAllByOwnerIdIsOrderById(userId)
                 .stream()
-                .map(ItemMapper::toItemDto)
+                .map(ItemMapper::itemToDto)
                 .collect(Collectors.toList());
 
         for (ItemDto itemDto : ownerItems) {
 
             List<CommentDto> comments = commentJpaRepository.findAllByItemIdIs(itemDto.getId())
                     .stream()
-                    .map(CommentMapper::toCommentDto)
+                    .map(CommentMapper::commentToDto)
                     .collect(Collectors.toList());
 
             itemDto.setComments(comments);
@@ -124,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemJpaRepository.search(text.toLowerCase());
 
         return items.stream()
-                .map(ItemMapper::toItemDto)
+                .map(ItemMapper::itemToDto)
                 .collect(Collectors.toList());
     }
 
@@ -132,8 +132,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
 
-        User author = checkUser(userId);
-        Item item = checkItem(itemId);
+        User author = userService.getUserIfExist(userId);
+        Item item = getItemIfExist(itemId);
         LocalDateTime creationDate = LocalDateTime.now();
         List<Booking> pastBookings = bookingJpaRepository.findAllPastBookings(author.getId(), creationDate);
 
@@ -144,20 +144,20 @@ public class ItemServiceImpl implements ItemService {
             throw new BadRequestException("This user don't booking this item");
         }
 
-        Comment comment = CommentMapper.toComment(commentDto);
+        Comment comment = CommentMapper.dtoToComment(commentDto);
         comment.setAuthor(author);
         comment.setItem(item);
         comment.setCreationDate(creationDate);
         commentJpaRepository.save(comment);
 
-        return CommentMapper.toCommentDto(comment);
+        return CommentMapper.commentToDto(comment);
     }
 
     private BookingInfoDto getLastBooking(Long itemId) {
         Optional<Booking> lastBooking = bookingJpaRepository.getItemLastBooking(itemId, LocalDateTime.now());
 
         return lastBooking
-                .map(BookingMapper::toBookingInfoDto)
+                .map(BookingMapper::bookingToInfoDto)
                 .orElse(null);
     }
 
@@ -167,19 +167,11 @@ public class ItemServiceImpl implements ItemService {
 
         return nextBooking
                 .filter(b -> !b.getStatus().equals(Status.REJECTED))
-                .map(BookingMapper::toBookingInfoDto)
+                .map(BookingMapper::bookingToInfoDto)
                 .orElse(null);
     }
 
-    private User checkUser(Long userId) {
-        Optional<User> user = userJpaRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new NotFoundException("User with id " + userId + " not found.");
-        }
-        return user.get();
-    }
-
-    private Item checkItem(Long itemId) {
+    public Item getItemIfExist(Long itemId) {
         Optional<Item> item = itemJpaRepository.findById(itemId);
         if (item.isEmpty()) {
             throw new NotFoundException("Item with id " + itemId + " not found.");

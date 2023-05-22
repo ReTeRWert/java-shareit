@@ -7,8 +7,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
 
+    // а все запросы надо править или только один?
     @Query(value = "SELECT * " +
             "FROM bookings AS b " +
             "WHERE b.item_id = ?1 " +
@@ -27,11 +28,7 @@ public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
             "LIMIT 1", nativeQuery = true)
     Optional<Booking> getItemNextBooking(Long itemId, LocalDateTime localDateTime);
 
-    @Query(" SELECT b " +
-            "FROM Booking b " +
-            "WHERE b.booker.id = ?1 " +
-            "ORDER BY b.id DESC")
-    List<Booking> findAllBookerBookings(Long id);
+    List<Booking> findAllByBookerIdIsOrderByIdDesc(Long id);
 
     @Query(" SELECT b " +
             "FROM Booking b " +

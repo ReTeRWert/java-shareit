@@ -8,9 +8,9 @@ import ru.practicum.shareit.exeption.BadRequestException;
 import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.exeption.UserVerificationException;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemJpaRepository;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserJpaRepository;
+import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,15 +22,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
-    private final BookingJpaRepository bookingRepository;
-    private final UserJpaRepository userRepository;
-    private final ItemJpaRepository itemRepository;
+    private final BookingRepository bookingRepository;
+    private final UserService userService;
+    private final ItemService itemService;
 
     @Transactional
     @Override
     public BookingDto saveBooking(Long userId, BookingDto booking) {
-        Item item = checkItem(booking.getItemId());
-        User user = checkUser(userId);
+        Item item = itemService.getItemIfExist(booking.getItemId());
+        User user = userService.getUserIfExist(userId);
 
         if (Objects.equals(item.getOwner().getId(), user.getId())) {
             throw new UserVerificationException("Owner cannot book his item.");
@@ -42,20 +42,20 @@ public class BookingServiceImpl implements BookingService {
 
         checkTime(booking);
 
-        Booking newBooking = BookingMapper.toBooking(booking);
+        Booking newBooking = BookingMapper.dtoToBooking(booking);
         newBooking.setItem(item);
         newBooking.setBooker(user);
         newBooking.setStatus(Status.WAITING);
 
-        return BookingMapper.toBookingDto(bookingRepository.save(newBooking));
+        return BookingMapper.bookingToDto(bookingRepository.save(newBooking));
     }
 
     @Transactional
     @Override
     public BookingDto approveBooking(Long userId, Long bookingId, Boolean approve) {
-        Booking booking = checkBooking(bookingId);
-        checkUser(userId);
-        Item item = checkItem(booking.getItem().getId());
+        Booking booking = getBookingIfExist(bookingId);
+        userService.getUserIfExist(userId);
+        Item item = itemService.getItemIfExist(booking.getItem().getId());
 
         if (!Objects.equals(item.getOwner().getId(), userId)) {
             throw new NotFoundException("This user not owner.");
@@ -70,29 +70,29 @@ public class BookingServiceImpl implements BookingService {
         }
 
 
-        return BookingMapper.toBookingDto(bookingRepository.save(booking));
+        return BookingMapper.bookingToDto(bookingRepository.save(booking));
     }
 
     @Override
     public BookingDto getBookingById(Long userId, Long bookingId) {
-        User user = checkUser(userId);
-        Booking booking = checkBooking(bookingId);
+        User user = userService.getUserIfExist(userId);
+        Booking booking = getBookingIfExist(bookingId);
 
         checkUserAccess(user, booking);
 
-        return BookingMapper.toBookingDto(booking);
+        return BookingMapper.bookingToDto(booking);
     }
 
     @Transactional
     @Override
     public List<BookingDto> getUserBookings(Long userId, String state) {
-        checkUser(userId);
+        userService.getUserIfExist(userId);
         List<Booking> bookings;
         State bookingState = checkBookingState(state);
 
         switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findAllBookerBookings(userId);
+                bookings = bookingRepository.findAllByBookerIdIsOrderByIdDesc(userId);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findAllCurrentBookings(userId, LocalDateTime.now());
@@ -114,14 +114,14 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(BookingMapper::bookingToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public List<BookingDto> getBookingsByOwner(Long userId, String state) {
-        checkUser(userId);
+        userService.getUserIfExist(userId);
         State bookingState = checkBookingState(state);
         List<Booking> bookings;
 
@@ -149,27 +149,11 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(BookingMapper::bookingToDto)
                 .collect(Collectors.toList());
     }
 
-    private User checkUser(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new NotFoundException("User with id " + userId + " does not exist.");
-        }
-        return user.get();
-    }
-
-    private Item checkItem(Long itemId) {
-        Optional<Item> item = itemRepository.findById(itemId);
-        if (item.isEmpty()) {
-            throw new NotFoundException("Item with id " + itemId + " does not exist.");
-        }
-        return item.get();
-    }
-
-    private Booking checkBooking(Long bookingId) {
+    public Booking getBookingIfExist(Long bookingId) {
         Optional<Booking> booking = bookingRepository.findById(bookingId);
         if (booking.isEmpty()) {
             throw new NotFoundException("Booking with id " + bookingId + " does not exist.");

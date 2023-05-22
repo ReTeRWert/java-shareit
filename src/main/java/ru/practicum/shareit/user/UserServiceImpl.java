@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserJpaRepository userRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
     public UserDto getUser(Long userId) {
-        return UserMapper.toUserDto(checkUser(userId));
+        return UserMapper.userToDto(getUserIfExist(userId));
     }
 
     @Transactional
@@ -26,21 +26,21 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(UserMapper::toUserDto)
+                .map(UserMapper::userToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public UserDto addUser(UserDto user) {
-        User newUser = UserMapper.toUser(user);
-        return UserMapper.toUserDto(userRepository.save(newUser));
+        User newUser = UserMapper.dtoToUser(user);
+        return UserMapper.userToDto(userRepository.save(newUser));
     }
 
     @Transactional
     @Override
     public UserDto updateUser(Long userId, UserDto user) {
-        User updatedUser = checkUser(userId);
+        User updatedUser = getUserIfExist(userId);
 
         if (user.getName() != null) {
             updatedUser.setName(user.getName());
@@ -50,17 +50,17 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.save(updatedUser);
-        return UserMapper.toUserDto(updatedUser);
+        return UserMapper.userToDto(updatedUser);
     }
 
     @Transactional
     @Override
     public void deleteUser(Long userId) {
-        checkUser(userId);
+        getUserIfExist(userId);
         userRepository.deleteById(userId);
     }
 
-    private User checkUser(Long userId) {
+    public User getUserIfExist(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             throw new NotFoundException("User with id " + userId + " does not exist");
