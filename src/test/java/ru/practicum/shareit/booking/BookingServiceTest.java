@@ -131,6 +131,71 @@ public class BookingServiceTest {
     }
 
     @Test
+    void approveBooking_whenApproved_thenReturnApprovedBooking() {
+        Mockito.when(bookingRepository.findById(anyLong()))
+                .thenReturn(Optional.of(bookingToSave));
+
+        Mockito.when(userService.getUserIfExist(1L))
+                .thenReturn(owner);
+
+        Mockito.when(itemService.getItemIfExist(anyLong()))
+                .thenReturn(item);
+
+        bookingToReturn.setStatus(Status.APPROVED);
+
+        Mockito.when(bookingRepository.save(bookingToSave))
+                .thenReturn(bookingToReturn);
+
+        BookingDto approvedBooking = bookingService.approveBooking(1L, 1L, true);
+
+        assertEquals(Status.APPROVED, approvedBooking.getStatus());
+        verify(bookingRepository, atMostOnce()).save(any(Booking.class));
+    }
+
+    @Test
+    void approveBooking_whenRejected_thenReturnRejectedBooking() {
+
+        Mockito.when(bookingRepository.findById(anyLong()))
+                .thenReturn(Optional.of(bookingToSave));
+
+        Mockito.when(userService.getUserIfExist(1L))
+                .thenReturn(owner);
+
+        Mockito.when(itemService.getItemIfExist(anyLong()))
+                .thenReturn(item);
+
+        bookingToReturn.setStatus(Status.REJECTED);
+
+        Mockito.when(bookingRepository.save(bookingToSave))
+                .thenReturn(bookingToReturn);
+
+        BookingDto approvedBooking = bookingService.approveBooking(1L, 1L, false);
+
+        assertEquals(Status.REJECTED, approvedBooking.getStatus());
+        verify(bookingRepository, atMostOnce()).save(any(Booking.class));
+    }
+
+    @Test
+    void approveBooking_whenAlreadyRejectedOrApproved_thenThrowsBadRequestException() {
+        bookingToSave.setStatus(Status.REJECTED);
+
+        Mockito.when(bookingRepository.findById(anyLong()))
+                .thenReturn(Optional.of(bookingToSave));
+
+        Mockito.when(userService.getUserIfExist(1L))
+                .thenReturn(owner);
+
+        Mockito.when(itemService.getItemIfExist(anyLong()))
+                .thenReturn(item);
+
+        assertThrows(
+                BadRequestException.class,
+                () -> bookingService.approveBooking(1L, 1L, false)
+        );
+        verify(bookingRepository, never()).save(any(Booking.class));
+    }
+
+    @Test
     void getBooking_whenFound_thenReturnBookingDto() {
         Mockito.when(userService.getUserIfExist(1L))
                 .thenReturn(owner);
