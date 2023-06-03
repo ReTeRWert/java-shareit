@@ -8,9 +8,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
+import ru.practicum.shareit.exeption.BadRequestException;
 import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
@@ -31,8 +35,13 @@ public class ItemServiceTest {
     private ItemRepository itemRepository;
     @Mock
     private UserService userService;
+
+    @Mock
+    private CommentRepository commentRepository;
     @Mock
     private ItemRequestRepository itemRequestRepository;
+    @Mock
+    private BookingRepository bookingRepository;
     @InjectMocks
     private ItemServiceImpl itemService;
 
@@ -262,6 +271,25 @@ public class ItemServiceTest {
     }
 
     @Test
+    void getItem_WhenUserNotOwner_ThenReturnItemDto() {
+        lenient().when(itemRepository.findById(1L))
+                .thenReturn(Optional.of(itemToReturn));
+
+        lenient().when(commentRepository.findAllByItemIdIs(1L))
+                .thenReturn(List.of(comment));
+
+        ItemDto actualDto = itemService.getItem(2L, 1L);
+
+        assertAll(
+                () -> assertEquals(itemToReturn.getId(), actualDto.getId()),
+                () -> assertEquals(1, actualDto.getComments().size()),
+                () -> assertNull(actualDto.getNextBooking()),
+                () -> assertNull(actualDto.getLastBooking())
+        );
+        verify(itemRepository).findById(1L);
+    }
+
+    @Test
     void getItem_WhenItemNotFound_ThenThrowsNotFoundException() {
         Long itemId = 1L;
 
@@ -273,6 +301,28 @@ public class ItemServiceTest {
                 () -> itemService.getItem(1L, 1L)
         );
         verify(itemRepository).findById(1L);
+    }
+
+    @Test
+    void getItemsByOwner_whenNoItems_ThenReturnEmptyList() {
+        Long ownerId = 1L;
+        Mockito.when(itemRepository.findAllByOwnerIdIsOrderById(anyLong(), any()))
+                .thenReturn(List.of());
+
+        List<ItemDto> actualDtos = itemService.getItemsByOwner(ownerId, 1L, 1);
+
+        assertTrue(actualDtos.isEmpty());
+    }
+
+    @Test
+    void getItemsByOwner_whenInvoked_ThenReturnListOfItems() {
+        Long ownerId = 1L;
+        Mockito.when(itemRepository.findAllByOwnerIdIsOrderById(anyLong(), any()))
+                .thenReturn(List.of(itemToReturn));
+
+        List<ItemDto> actualDtos = itemService.getItemsByOwner(ownerId, 1L, 1);
+
+        assertEquals(1, actualDtos.size());
     }
 
     @Test
@@ -312,6 +362,53 @@ public class ItemServiceTest {
 
         assertEquals(itemToReturn, returnedItem);
         verify(itemRepository).findById(1L);
+    }
+
+    @Test
+    void addComment_whenInvoked_thenReturnCommentDto() {
+        Long authorId = 2L;
+
+        lenient().when(userService.getUserIfExist(authorId))
+                .thenReturn(otherUser);
+
+        lenient().when(itemRepository.findById(1L))
+                .thenReturn(Optional.ofNullable(itemToReturn));
+
+        lenient().when(bookingRepository.findAllPastBookings(anyLong(), any())).thenReturn(List.of(lastBooking));
+
+        CommentDto commentToSave = new CommentDto(
+                1L,
+                "text",
+                "author",
+                LocalDateTime.now());
+
+        lenient().when(commentRepository.save(any(Comment.class)))
+                .thenReturn(comment);
+
+        CommentDto savedComment = itemService.addComment(2L, 1L, commentToSave);
+
+        assertEquals("text", savedComment.getText());
+    }
+
+    @Test
+    void addComment_whenNotPastBookingFound_thenThrowsBadRequestException() {
+        Long authorId = 2L;
+
+        lenient().when(userService.getUserIfExist(authorId))
+                .thenReturn(otherUser);
+
+        lenient().when(itemRepository.findById(1L))
+                .thenReturn(Optional.ofNullable(itemToReturn));
+
+        lenient().when(bookingRepository.findAllPastBookings(anyLong(), any()))
+                .thenReturn(List.of());
+
+        CommentDto commentToSave = new CommentDto(1L, "text", "author", LocalDateTime.now());
+
+        assertThrows(
+                BadRequestException.class,
+                () -> itemService.addComment(2L, 1L, commentToSave)
+        );
     }
 
     @Test

@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -15,6 +16,7 @@ import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -88,7 +90,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getUsersRequests_whenNoRequests_thenReturnEmptyList() {
+    void getRequestsByUserId_whenNoRequests_thenReturnEmptyList() {
         Long userId = 1L;
 
         Mockito.when(userService.getUserIfExist(userId))
@@ -127,7 +129,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getAllRequestsPageable_whenInvoked_thenReturnListOfRequests() {
+    void getAllRequests_whenInvoked_thenReturnListOfRequests() {
         Long userId = 2L;
 
         Mockito.when(userService.getUserIfExist(userId))
@@ -144,6 +146,39 @@ public class ItemRequestServiceTest {
         assertAll(
                 () -> assertEquals(1, actual.size()),
                 () -> assertNotNull(actual.get(0).getItems())
+        );
+    }
+
+    @Test
+    void getRequestByIdIn_whenFound_thenReturnRequest() {
+        Long userId = 2L;
+        Long requestId = 1L;
+
+        Mockito.when(userService.getUserIfExist(userId))
+                .thenReturn(owner);
+
+        Mockito.when(itemRequestRepository.findById(requestId))
+                .thenReturn(Optional.of(requestToReturn));
+
+        ItemRequestDto actualDto = itemRequestService.getRequestById(userId, requestId);
+
+        assertEquals(1L, actualDto.getId());
+    }
+
+    @Test
+    void getRequestByIdIn_whenNotFound_thenThrowsNotFoundException() {
+        Long userId = 2L;
+        Long requestId = 1L;
+
+        Mockito.when(userService.getUserIfExist(userId))
+                .thenReturn(owner);
+
+        Mockito.when(itemRequestRepository.findById(requestId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> itemRequestService.getRequestById(userId, requestId)
         );
     }
 }
