@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.comment.CommentDto;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -49,15 +50,19 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                         @RequestParam(value = "from", required = false, defaultValue = "0") @Min(value = 0) Long from,
+                                         @RequestParam(value = "size", required = false, defaultValue = "10") @Min(value = 1) Integer size) {
         log.info("Get items by user with id {}", userId);
-        return itemService.getItemsByOwner(userId);
+        return itemService.getItemsByOwner(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text) {
+    public List<ItemDto> searchItems(@RequestParam String text,
+                                     @RequestParam(value = "from", required = false, defaultValue = "0") @Min(value = 0) Long from,
+                                     @RequestParam(value = "size", required = false, defaultValue = "10") @Min(value = 1) Integer size) {
         log.info("Get items with text {}", text);
-        return itemService.searchItems(text);
+        return itemService.searchItems(text, from, size);
     }
 
 

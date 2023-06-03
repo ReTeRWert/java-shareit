@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -40,14 +41,18 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                            @RequestParam(value = "state", defaultValue = "ALL") String state) {
-        return bookingService.getUserBookings(userId, state);
+                                            @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                            @RequestParam(value = "from", required = false, defaultValue = "0") @Validated @Min(value = 0) Long from,
+                                            @RequestParam(value = "size", required = false, defaultValue = "10") @Min(value = 1) Integer size) {
+        return bookingService.getUserBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getBookingsByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                               @RequestParam(value = "state", defaultValue = "ALL") String state) {
-        return bookingService.getBookingsByOwner(ownerId, state);
+                                               @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                               @RequestParam(value = "from", required = false, defaultValue = "0") @Min(value = 0) Long from,
+                                               @RequestParam(value = "size", required = false, defaultValue = "10") @Min(value = 1) Integer size) {
+        return bookingService.getBookingsByOwner(ownerId, state, from, size);
     }
 
 }

@@ -11,11 +11,15 @@ public interface ItemService {
 
     ItemDto getItem(Long userId, Long itemId);
 
-    List<ItemDto> getItemsByOwner(Long userId);
+    List<ItemDto> getItemsByOwner(Long userId, Long from, Integer size);
 
-    List<ItemDto> searchItems(String text);
+    List<ItemDto> searchItems(String text, Long from, Integer size);
 
     CommentDto addComment(Long userId, Long itemId, CommentDto comment);
 
     Item getItemIfExist(Long itemId);
+
+    List<Item> getItemsByRequestIdIn(List<Long> requestIds);
+
+    List<Item> getItemsByRequestIdIs(Long requestId);
 }

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -85,14 +86,18 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public List<BookingDto> getUserBookings(Long userId, String state) {
+    public List<BookingDto> getUserBookings(Long userId, String state, Long from, Integer size) {
         userService.getUserIfExist(userId);
         List<Booking> bookings;
         State bookingState = checkBookingState(state);
+        if (from < 0) {
+            throw new IllegalArgumentException("From must be greater than 0.");
+        }
+        int startPage = Math.toIntExact(from / size);
 
         switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findAllByBookerIdIsOrderByIdDesc(userId);
+                bookings = bookingRepository.findAllByBookerIdIsOrderByIdDesc(userId, PageRequest.of(startPage, size));
                 break;
             case CURRENT:
                 bookings = bookingRepository.findAllCurrentBookings(userId, LocalDateTime.now());
@@ -120,14 +125,18 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public List<BookingDto> getBookingsByOwner(Long userId, String state) {
+    public List<BookingDto> getBookingsByOwner(Long userId, String state, Long from, Integer size) {
         userService.getUserIfExist(userId);
         State bookingState = checkBookingState(state);
         List<Booking> bookings;
+        if (from < 0) {
+            throw new IllegalArgumentException("From must be greater than 0.");
+        }
+        int startPage = Math.toIntExact(from / size);
 
         switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findAllOwnerBookings(userId);
+                bookings = bookingRepository.findAllOwnerBookings(userId, PageRequest.of(startPage, size));
                 break;
             case CURRENT:
                 bookings = bookingRepository.findAllOwnerCurrentBookings(userId, LocalDateTime.now());
