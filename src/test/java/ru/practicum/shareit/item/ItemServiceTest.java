@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
@@ -29,6 +30,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(properties = {"db.name=test"})
 public class ItemServiceTest {
 
     @Mock
@@ -121,7 +123,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void addNewItem_whenNoRequest_thenReturnItemDto() {
+    void addNewItem_shouldReturnItemDto_whenNoRequest() {
         Mockito.when(userService.getUserIfExist(owner.getId()))
                 .thenReturn(owner);
         Mockito.when(itemRepository.save(any(Item.class)))
@@ -144,7 +146,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void addNewItem_whenRequestFound_thenReturnItemDto() {
+    void addNewItem_shouldReturnItemDto_whenRequestFound() {
         Long requestId = 1L;
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setId(requestId);
@@ -176,7 +178,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void addNewItem_whenRequestNotFound_thenThrowsNotFoundException() {
+    void addNewItem_shouldThrowsNotFoundException_whenRequestNotFound() {
         Long requestId = 1L;
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setId(requestId);
@@ -196,7 +198,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateItem_whenNewName_thenReturnItemDtoWithNewName() {
+    void updateItem_shouldReturnItemDtoWithNewName_whenNewName() {
         ItemDto updatedItem = new ItemDto();
         updatedItem.setId(itemToSave.getId());
         updatedItem.setName("new name");
@@ -221,7 +223,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateItem_whenNewDescription_thenReturnItemDtoWithNewDescription() {
+    void updateItem_shouldReturnItemDtoWithNewDescription_whenNewDescription() {
         ItemDto updatedItem = new ItemDto();
         updatedItem.setId(itemToSave.getId());
         updatedItem.setDescription("new desc");
@@ -246,7 +248,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateItem_whenSetNotAvailable_thenReturnItemDtoWithNotAvailable() {
+    void updateItem_shouldReturnItemDtoWithNotAvailable_whenSetNotAvailable() {
         ItemDto updatedItem = new ItemDto();
         updatedItem.setId(itemToSave.getId());
         updatedItem.setAvailable(false);
@@ -271,7 +273,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getItem_WhenUserNotOwner_ThenReturnItemDto() {
+    void getItem_shouldReturnItemDto_whenUserNotOwner() {
         lenient().when(itemRepository.findById(1L))
                 .thenReturn(Optional.of(itemToReturn));
 
@@ -290,7 +292,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getItem_WhenItemNotFound_ThenThrowsNotFoundException() {
+    void getItem_shouldThrowsNotFoundException_whenItemNotFound() {
         Long itemId = 1L;
 
         Mockito.when(itemRepository.findById(itemId))
@@ -304,7 +306,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getItemsByOwner_whenNoItems_ThenReturnEmptyList() {
+    void getItemsByOwner_shouldReturnEmptyList_whenNoItems() {
         Long ownerId = 1L;
         Mockito.when(itemRepository.findAllByOwnerIdIsOrderById(anyLong(), any()))
                 .thenReturn(List.of());
@@ -315,7 +317,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getItemsByOwner_whenInvoked_ThenReturnListOfItems() {
+    void getItemsByOwner_shouldReturnListOfItems_whenInvoked() {
         Long ownerId = 1L;
         Mockito.when(itemRepository.findAllByOwnerIdIsOrderById(anyLong(), any()))
                 .thenReturn(List.of(itemToReturn));
@@ -326,14 +328,14 @@ public class ItemServiceTest {
     }
 
     @Test
-    void search_whenTextIsEmpty_thenReturnEmptyList() {
+    void search_shouldReturnEmptyList_whenTextIsEmpty() {
         List<ItemDto> actualDtos = itemService.searchItems("", 1L, 1);
 
         assertTrue(actualDtos.isEmpty());
     }
 
     @Test
-    void search_whenInvoked_thenReturnListOfItems() {
+    void search_shouldReturnListOfItems_whenInvoked() {
         Mockito.when(itemRepository.search(any(), any()))
                 .thenReturn(List.of(itemToReturn));
 
@@ -343,7 +345,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void checkIfItemExist_whenNotFound_thenThrowsNotFoundException() {
+    void checkIfItemExist_shouldThrowsNotFoundException_whenNotFound() {
         Mockito.when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
 
@@ -354,7 +356,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void checkIfItemExist_whenFound_thenReturnItem() {
+    void checkIfItemExist_shouldReturnItem_whenFound() {
         Mockito.when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.of(itemToReturn));
 
@@ -365,7 +367,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void addComment_whenInvoked_thenReturnCommentDto() {
+    void addComment_shouldReturnCommentDto_whenInvoked() {
         Long authorId = 2L;
 
         lenient().when(userService.getUserIfExist(authorId))
@@ -391,7 +393,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void addComment_whenNotPastBookingFound_thenThrowsBadRequestException() {
+    void addComment_shouldThrowsBadRequestException_whenNotPastBookingFound() {
         Long authorId = 2L;
 
         lenient().when(userService.getUserIfExist(authorId))
@@ -412,7 +414,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getItemsByRequestIdIn_whenInvoked_thenReturnListOfItems() {
+    void getItemsByRequestIdIn_shouldReturnListOfItems_whenInvoked() {
         itemToReturn.setRequest(request);
 
         Mockito.when(itemRepository.findAllByRequestIdIn(anyList()))
@@ -424,7 +426,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getItemsByRequestId_whenInvoked_thenReturnListOfItems() {
+    void getItemsByRequestId_shouldReturnListOfItems_whenInvoked() {
         itemToReturn.setRequest(request);
         Mockito.when(itemRepository.findAllByRequestIdIs(anyLong()))
                 .thenReturn(List.of(itemToReturn));

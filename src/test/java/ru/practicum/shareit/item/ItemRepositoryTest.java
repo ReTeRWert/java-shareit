@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+@TestPropertySource(properties = {"db.name=test"})
 public class ItemRepositoryTest {
 
     @Autowired
@@ -81,7 +83,7 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    void findAllByOwnerIdIsOrderById_whenInvoked_thenReturnListOfItems() {
+    void findAllByOwnerIdIsOrderById_shouldReturnListOfItems_whenInvoked() {
         List<Item> actualItems = itemRepository
                 .findAllByOwnerIdIsOrderById(user1.getId(), PageRequest.of(0, 10));
 
@@ -89,7 +91,7 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    void findAllByOwnerIdIsOrderById_whenUserDontHaveItems_thenReturnEmptyList() {
+    void findAllByOwnerIdIsOrderById_shouldReturnEmptyList_whenUserDoNotHaveItems() {
         List<Item> actualItems = itemRepository
                 .findAllByOwnerIdIsOrderById(user3.getId(), PageRequest.of(0, 10));
 
@@ -97,35 +99,35 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    void search_whenFind_thenReturnListOfItems() {
+    void search_shouldReturnListOfItems_whenFind() {
         List<Item> actualItems = itemRepository.search("name", PageRequest.of(0, 10));
 
         assertEquals(1, actualItems.size());
     }
 
     @Test
-    void findAllByRequestIdIn_whenFound_thenReturnListOfItems() {
+    void findAllByRequestIdIn_shouldReturnListOfItems_whenFound() {
         List<Item> actualItems = itemRepository.findAllByRequestIdIn(List.of(request1.getId()));
 
         assertEquals(1, actualItems.size());
     }
 
     @Test
-    void findAllByRequestIdIn_whenNotFound_thenEmptyList() {
+    void findAllByRequestIdIn_shouldEmptyList_whenNotFound() {
         List<Item> actualItems = itemRepository.findAllByRequestIdIn(List.of(100L));
 
         assertTrue(actualItems.isEmpty());
     }
 
     @Test
-    void findAllByRequestIdIs_whenFound_thenReturnListOfItems() {
+    void findAllByRequestIdIs_shouldReturnListOfItems_whenFound() {
         List<Item> actualItems = itemRepository.findAllByRequestIdIs(request1.getId());
 
         assertEquals(1, actualItems.size());
     }
 
     @Test
-    void findAllByRequestIdIs_whenNotFound_thenEmptyList() {
+    void findAllByRequestIdIs_shouldEmptyList_whenNotFound() {
         List<Item> actualItems = itemRepository.findAllByRequestIdIs(100L);
 
         assertTrue(actualItems.isEmpty());

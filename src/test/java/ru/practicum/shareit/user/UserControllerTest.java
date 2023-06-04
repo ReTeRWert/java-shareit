@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exeption.NotFoundException;
 
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {"db.name=test"})
 public class UserControllerTest {
 
     @Autowired
@@ -40,7 +42,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void getUsers_whenNoUsers_thenReturnStatusOkAndEmptyListJson() throws Exception {
+    void getUsers_shouldReturnStatusOkAndEmptyListJson_whenNoUsers() throws Exception {
         when(userService.getUsers()).thenReturn(List.of());
 
         mockMvc.perform(get("/users"))
@@ -51,7 +53,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void getUsers_whenFound_thenReturnStatusOkAndUsersListJson() throws Exception {
+    void getUsers_shouldReturnStatusOkAndUsersListJson_whenFound() throws Exception {
         when(userService.getUsers()).thenReturn(List.of(userDto));
 
         mockMvc.perform(get("/users"))
@@ -64,7 +66,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void findUser_whenFound_thenReturnStatusOkAndUserJson() throws Exception {
+    void findUser_shouldReturnStatusOkAndUserJson_whenFound() throws Exception {
         when(userService.getUser(1L))
                 .thenReturn(userDto);
 
@@ -78,7 +80,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void findUser_whenNotFound_thenRetrunStatusNotFound() throws Exception {
+    void findUser_shouldReturnStatusNotFound_whenNotFound() throws Exception {
         when(userService.getUser(1L))
                 .thenThrow(new NotFoundException("not found"));
 
@@ -89,7 +91,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void addNewUser_whenInvoked_thenReturnStatusOkAndUserJson() throws Exception {
+    void addNewUser_shouldReturnStatusOkAndUserJson_whenInvoked() throws Exception {
         when(userService.addUser(any()))
                 .thenReturn(userDto);
 
@@ -107,7 +109,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void updateUser_whenInvoked_thenReturnStatusOkAndUserJson() throws Exception {
+    void updateUser_shouldReturnStatusOkAndUserJson_whenInvoked() throws Exception {
         when(userService.updateUser(any(), any())).thenReturn(userDto);
 
         mockMvc.perform(patch("/users/{id}", 1L)
@@ -124,7 +126,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void deleteUser_whenInvoked_thenReturnStatusOk() throws Exception {
+    void deleteUser_shouldReturnStatusOk_whenInvoked() throws Exception {
         mockMvc.perform(delete("/users/{id}", 1L))
                 .andExpect(status().isOk());
 

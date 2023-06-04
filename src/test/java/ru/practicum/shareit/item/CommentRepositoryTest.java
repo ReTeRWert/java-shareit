@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.user.User;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+@TestPropertySource(properties = {"db.name=test"})
 public class CommentRepositoryTest {
     @Autowired
     private UserRepository userRepository;
@@ -76,21 +78,21 @@ public class CommentRepositoryTest {
     }
 
     @Test
-    void findAllByItemIdIs_whenFound_thenReturnListOfComments() {
+    void findAllByItemIdIs_shouldReturnListOfComments_whenFound() {
         List<Comment> comments = commentRepository.findAllByItemIdIs(item1.getId());
 
         assertEquals(1, comments.size());
     }
 
     @Test
-    void findAllByItemIdIs_whenNotFound_thenReturnEmptyList() {
+    void findAllByItemIdIs_shouldReturnEmptyList_whenNotFound() {
         List<Comment> comments = commentRepository.findAllByItemIdIs(item2.getId());
 
         assertTrue(comments.isEmpty());
     }
 
     @Test
-    void findAllByItemIdIn_whenFound_thenReturnListOfComments() {
+    void findAllByItemIdIn_shouldReturnListOfComments_whenFound() {
         List<Comment> comments = commentRepository
                 .findAllByItemIdIs(item1.getId());
         assertEquals(1, comments.size());

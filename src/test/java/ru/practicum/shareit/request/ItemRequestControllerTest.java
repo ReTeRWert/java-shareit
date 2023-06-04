@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ItemRequestController.class)
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {"db.name=test"})
 public class ItemRequestControllerTest {
     @Autowired
     private ObjectMapper mapper;
@@ -46,7 +48,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void createNewRequest_whenInvoked_thenReturnStatusOkAndRequestJson() throws Exception {
+    void createNewRequest_shouldReturnStatusOkAndRequestJson_whenInvoked() throws Exception {
         when(service.addNewRequest(any(), any()))
                 .thenReturn(requestDto);
 
@@ -63,7 +65,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getUsersRequests_whenInvoked_thenReturnStatusOkAndListOfRequestsJson() throws Exception {
+    void getUsersRequests_shouldReturnStatusOkAndListOfRequestsJson_whenInvoked() throws Exception {
         when(service.getRequestsByUserId(any()))
                 .thenReturn(List.of(requestDto));
 
@@ -80,7 +82,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getAllRequestsPageable_whenInvoked_thenReturnStatusOkAndListOfRequestsJson() throws Exception {
+    void getAllRequestsPageable_shouldReturnStatusOkAndListOfRequestsJson_whenInvoked() throws Exception {
         when(service.getAllRequests(any(), any(), any()))
                 .thenReturn(List.of(requestDto));
 
@@ -99,7 +101,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getRequestById_whenInvoked_thenReturnStatusOkAndRequestJson() throws Exception {
+    void getRequestById_shouldReturnStatusOkAndRequestJson_whenInvoked() throws Exception {
         when(service.getRequestById(any(), any()))
                 .thenReturn(requestDto);
 
@@ -112,7 +114,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getRequestById_whenNotFound_thenReturnStatusNotFound() throws Exception {
+    void getRequestById_shouldReturnStatusNotFound_whenNotFound() throws Exception {
         when(service.getRequestById(any(), any()))
                 .thenThrow(new NotFoundException("not found"));
 

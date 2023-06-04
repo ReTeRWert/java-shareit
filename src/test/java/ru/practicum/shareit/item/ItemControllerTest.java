@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.item.comment.CommentDto;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ItemController.class)
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {"db.name=test"})
 public class ItemControllerTest {
 
     @Autowired
@@ -55,7 +57,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void addNewItem_whenInvoked_thenReturnStatusOkAndItemJson() throws Exception {
+    void addNewItem_shouldReturnStatusOkAndItemJson_whenInvoked() throws Exception {
         when(itemService.addItem(any(), any()))
                 .thenReturn(itemDto);
 
@@ -74,7 +76,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void updateItem_whenInvoked_thenReturnStatusOkAndItemJson() throws Exception {
+    void updateItem_shouldReturnStatusOkAndItemJson_whenInvoked() throws Exception {
         when(itemService.updateItem(any(), any(), any()))
                 .thenReturn(itemDto);
 
@@ -93,7 +95,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void updateItem_whenNotFound_thenReturnStatusNotFound() throws Exception {
+    void updateItem_shouldReturnStatusNotFound_whenNotFound() throws Exception {
         when(itemService.updateItem(any(), any(), any()))
                 .thenThrow(new NotFoundException("not found"));
 
@@ -108,7 +110,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getItem_whenInvoked_thenReturnStatusOkAndItemJson() throws Exception {
+    void getItem_shouldReturnStatusOkAndItemJson_whenInvoked() throws Exception {
         when(itemService.getItem(1L, 1L))
                 .thenReturn(itemDto);
 
@@ -123,7 +125,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getItemsByOwner_whenInvoked_thenReturnStatusOkAndListOfItemsJson() throws Exception {
+    void getItemsByOwner_shouldReturnStatusOkAndListOfItemsJson_whenInvoked() throws Exception {
         when(itemService.getItemsByOwner(1L, 0L, 10))
                 .thenReturn(List.of(itemDto));
 
@@ -140,7 +142,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void search_whenInvoked_thenReturnStatusOkAndListOfItemsJson() throws Exception {
+    void search_shouldReturnStatusOkAndListOfItemsJson_whenInvoked() throws Exception {
         when(itemService.searchItems("name", 0L, 10))
                 .thenReturn(List.of(itemDto));
 
@@ -157,7 +159,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void addComment_whenInvoked_thenReturnStatusOkAndListOfItemsJson() throws Exception {
+    void addComment_shouldReturnStatusOkAndListOfItemsJson_whenInvoked() throws Exception {
         when(itemService.addComment(any(), any(), any()))
                 .thenReturn(commentDto);
 

@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemService;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(properties = {"db.name=test"})
 public class ItemRequestServiceTest {
 
     @Mock
@@ -76,7 +78,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void createNewRequest_whenInvoked_thenSaveAndReturnRequestDto() {
+    void createNewRequest_shouldSaveAndReturnRequestDto_whenInvoked() {
         Mockito.when(userService.getUserIfExist(1L))
                 .thenReturn(requestor);
 
@@ -90,7 +92,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getRequestsByUserId_whenNoRequests_thenReturnEmptyList() {
+    void getRequestsByUserId_shouldReturnEmptyList_whenNoRequests() {
         Long userId = 1L;
 
         Mockito.when(userService.getUserIfExist(userId))
@@ -108,7 +110,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getUsersRequests_whenFound_thenReturnListOfRequests() {
+    void getUsersRequests_shouldReturnListOfRequests_whenFound() {
         Long userId = 1L;
 
         Mockito.when(userService.getUserIfExist(userId))
@@ -129,7 +131,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getAllRequests_whenInvoked_thenReturnListOfRequests() {
+    void getAllRequests_shouldReturnListOfRequests_whenInvoked() {
         Long userId = 2L;
 
         Mockito.when(userService.getUserIfExist(userId))
@@ -150,7 +152,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getRequestByIdIn_whenFound_thenReturnRequest() {
+    void getRequestByIdIn_shouldReturnRequest_whenFound() {
         Long userId = 2L;
         Long requestId = 1L;
 
@@ -166,7 +168,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getRequestByIdIn_whenNotFound_thenThrowsNotFoundException() {
+    void getRequestByIdIn_shouldThrowsNotFoundException_whenNotFound() {
         Long userId = 2L;
         Long requestId = 1L;
 

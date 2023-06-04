@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exeption.BadRequestException;
 import ru.practicum.shareit.exeption.NotFoundException;
@@ -27,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(properties = {"db.name=test"})
 public class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
@@ -86,7 +88,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void createNewBooking_whenInvoked_thenReturnBooking() {
+    void createNewBooking_shouldReturnBooking_whenInvoked() {
         Mockito.when(itemService.getItemIfExist(anyLong()))
                 .thenReturn(item);
         Mockito.when(userService.getUserIfExist(anyLong()))
@@ -101,7 +103,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void createNewBooking_whenBookerIsOwner_thenThrowsUserVerificationException() {
+    void createNewBooking_shouldThrowsUserVerificationException_whenBookerIsOwner() {
         Mockito.when(itemService.getItemIfExist(anyLong()))
                 .thenReturn(item);
         Mockito.when(userService.getUserIfExist(anyLong()))
@@ -115,7 +117,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void createNewBooking_whenItemIsNotAvailable_thenThrowsBadRequestException() {
+    void createNewBooking_shouldThrowsBadRequestException_whenItemIsNotAvailable() {
         item.setAvailable(false);
 
         Mockito.when(itemService.getItemIfExist(anyLong()))
@@ -131,7 +133,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void approveBooking_whenApproved_thenReturnApprovedBooking() {
+    void approveBooking_shouldReturnApprovedBooking_whenApproved() {
         Mockito.when(bookingRepository.findById(anyLong()))
                 .thenReturn(Optional.of(bookingToSave));
 
@@ -153,7 +155,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void approveBooking_whenRejected_thenReturnRejectedBooking() {
+    void approveBooking_shouldReturnRejectedBooking_whenRejected() {
 
         Mockito.when(bookingRepository.findById(anyLong()))
                 .thenReturn(Optional.of(bookingToSave));
@@ -176,7 +178,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void approveBooking_whenAlreadyRejectedOrApproved_thenThrowsBadRequestException() {
+    void approveBooking_shouldThrowsBadRequestException_whenAlreadyRejectedOrApproved() {
         bookingToSave.setStatus(Status.REJECTED);
 
         Mockito.when(bookingRepository.findById(anyLong()))
@@ -196,7 +198,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getBooking_whenFound_thenReturnBookingDto() {
+    void getBooking_shouldReturnBookingDto_whenFound() {
         Mockito.when(userService.getUserIfExist(1L))
                 .thenReturn(owner);
         Mockito.when(bookingRepository.findById(anyLong()))
@@ -208,7 +210,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getBooking_whenNotFound_thenThrowsNotFoundException() {
+    void getBooking_shouldThrowsNotFoundException_whenNotFound() {
         Mockito.when(userService.getUserIfExist(1L))
                 .thenReturn(owner);
         Mockito.when(bookingRepository.findById(anyLong()))
@@ -221,7 +223,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getUserBookings_whenInvoked_thenReturnListOfBookings() {
+    void getUserBookings_shouldReturnListOfBookings_whenInvoked() {
         List<BookingDto> actualDto;
 
         Mockito.when(userService.getUserIfExist(2L))
@@ -259,7 +261,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getOwnerBookings_whenInvoked_thenReturnListOfBookings() {
+    void getOwnerBookings_shouldReturnListOfBookings_whenInvoked() {
         List<BookingDto> actualDto;
         when(userService.getUserIfExist(1L))
                 .thenReturn(owner);
@@ -296,7 +298,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void checkIfBookingExist_WhenNotFound_thenThrowsNotFoundException() {
+    void checkIfBookingExist_shouldThrowsNotFoundException_whenNotFound() {
         Mockito.when(bookingRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(

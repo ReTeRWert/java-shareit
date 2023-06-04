@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exeption.NotFoundException;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(BookingController.class)
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {"db.name=test"})
 public class BookingControllerTest {
 
     @Autowired
@@ -66,7 +68,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void createNewBooking_whenInvoked_thenReturnStatusOkAndBookingJson() throws Exception {
+    void createNewBooking_shouldReturnStatusOkAndBookingJson_whenInvoked() throws Exception {
         when(bookingService.saveBooking(any(), any())).thenReturn(bookingDto);
 
         mockMvc.perform(post("/bookings")
@@ -81,7 +83,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void approveBooking_whenInvoked_thenReturnStatusOkAndBookingJson() throws Exception {
+    void approveBooking_shouldReturnStatusOkAndBookingJson_whenInvoked() throws Exception {
         when(bookingService.approveBooking(any(), any(), any())).thenReturn(bookingDto);
 
         mockMvc.perform(patch("/bookings/{bookingId}", 1L)
@@ -93,7 +95,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getBooking_whenFound_thenReturnStatusOkAndBookingJson() throws Exception {
+    void getBooking_shouldReturnStatusOkAndBookingJson_whenFound() throws Exception {
         when(bookingService.getBookingById(any(), any())).thenReturn(bookingDto);
 
         mockMvc.perform(get("/bookings/{bookingId}", 1L)
@@ -105,7 +107,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getBooking_whenNotFound_thenReturnStatusNotFound() throws Exception {
+    void getBooking_shouldReturnStatusNotFound_whenNotFound() throws Exception {
         when(bookingService.getBookingById(any(), any())).thenThrow(new NotFoundException("not found"));
 
         mockMvc.perform(get("/bookings/{bookingId}", 1L)
@@ -117,7 +119,7 @@ public class BookingControllerTest {
 
 
     @Test
-    void getUserBookings_whenInvoked_thenReturnStatusOkAndListOfBookingsJson() throws Exception {
+    void getUserBookings_shouldReturnStatusOkAndListOfBookingsJso_whenInvoked() throws Exception {
         when(bookingService.getUserBookings(any(), any(), any(), any())).thenReturn(List.of(bookingDto));
 
         mockMvc.perform(get("/bookings")
@@ -131,7 +133,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getOwnerBookings_whenInvoked_thenReturnStatusOkAndListOfBookingsJson() throws Exception {
+    void getOwnerBookings_shouldReturnStatusOkAndListOfBookingsJson_whenInvoked() throws Exception {
         when(bookingService.getBookingsByOwner(any(), any(), any(), any())).thenReturn(List.of(bookingDto));
 
         mockMvc.perform(get("/bookings/owner")

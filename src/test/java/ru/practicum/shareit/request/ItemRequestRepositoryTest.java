@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@TestPropertySource(properties = {"db.name=test"})
 public class ItemRequestRepositoryTest {
 
     @Autowired
@@ -59,7 +61,7 @@ public class ItemRequestRepositoryTest {
     }
 
     @Test
-    void findAllByRequestorIdOrderByCreatedDesc_whenFound_thenReturnListOfRequests() {
+    void findAllByRequestorIdOrderByCreatedDesc_shouldReturnListOfRequests_whenFound() {
         List<ItemRequest> requests = itemRequestRepository
                 .findAllByRequestorIdIsOrderByCreatedDesc(requestor1.getId());
 
@@ -71,7 +73,7 @@ public class ItemRequestRepositoryTest {
     }
 
     @Test
-    void findAllByRequestorIdOrderByCreatedDesc_whenNotFound_thenReturnEmptyList() {
+    void findAllByRequestorIdOrderByCreatedDesc_shouldReturnEmptyList_whenNotFound() {
         List<ItemRequest> requests = itemRequestRepository
                 .findAllByRequestorIdIsOrderByCreatedDesc(requestor2.getId());
 
@@ -79,7 +81,7 @@ public class ItemRequestRepositoryTest {
     }
 
     @Test
-    void findAllByRequestorIdIsNot_whenNotFound_thenReturnEmptyList() {
+    void findAllByRequestorIdIsNot_shouldReturnEmptyList_whenNotFound() {
         List<ItemRequest> requests = itemRequestRepository
                 .findAllByRequestorIdIsNotOrderByCreatedDesc(requestor1.getId(), PageRequest.of(0, 10));
 
@@ -87,7 +89,7 @@ public class ItemRequestRepositoryTest {
     }
 
     @Test
-    void findAllByRequestorIdIsNot_whenFound_thenReturnListOfRequests() {
+    void findAllByRequestorIdIsNot_shouldReturnListOfRequests_whenFound() {
         List<ItemRequest> requests = itemRequestRepository
                 .findAllByRequestorIdIsNotOrderByCreatedDesc(requestor2.getId(), PageRequest.of(0, 10));
 

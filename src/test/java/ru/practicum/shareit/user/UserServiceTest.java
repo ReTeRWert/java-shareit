@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.exeption.NotFoundException;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource(properties = {"db.name=test"})
 public class UserServiceTest {
 
     @Mock
@@ -44,7 +46,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void getUsers_whenInvoked_thenReturnUserDtos() {
+    void getUsers_shouldReturnUserDtos_whenInvoked() {
         Mockito.when(userRepository.findAll())
                 .thenReturn(List.of(user1, user2));
 
@@ -59,7 +61,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void getUsers_whenUsersTableIsEmpty_thenReturnEmptyList() {
+    void getUsers_shouldReturnEmptyList_whenUsersTableIsEmpty() {
         Mockito.when(userRepository.findAll())
                 .thenReturn(List.of());
 
@@ -70,7 +72,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void findUser_whenUserFound_thenReturnUserDto() {
+    void findUser_shouldReturnUserDto_whenUserFound() {
         Long userId = 1L;
         Mockito.when(userRepository.findById(userId))
                 .thenReturn(Optional.of(user1));
@@ -82,7 +84,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void findUser_whenUserNotFound_thenThrowsNotFoundException() {
+    void findUser_shouldThrowsNotFoundException_whenUserNotFound() {
         Long userId = 1L;
         Mockito.when(userRepository.findById(userId))
                 .thenReturn(Optional.empty());
@@ -95,7 +97,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void addNewUser_whenInvoked_thenSaveNewUserAndReturnCorrectDto() {
+    void addNewUser_shouldSaveNewUserAndReturnCorrectDto_whenInvoked() {
         User userToSave = new User();
         userToSave.setName(user1.getName());
         userToSave.setEmail(user1.getEmail());
@@ -111,7 +113,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateUser_whenNewNameAndEmailIsNull_thenReturnUserDtoWithNewName() {
+    void updateUser_shouldReturnUserDtoWithNewName_whenNewEmailIsNull() {
         UserDto userToUpdate = new UserDto(
                 1L,
                 "new name",
@@ -137,7 +139,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateUser_whenNewEmailAndNameIsNull_thenReturnUserDtoWithNewEmail() {
+    void updateUser_shouldReturnUserDtoWithNewEmail_whenNewNameIsNull() {
         UserDto userToUpdate = new UserDto(
                 1L,
                 null,
@@ -163,7 +165,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateUser_whenUserNotFound_thenThrowNotFoundException() {
+    void updateUser_shouldThrowNotFoundException_whenUserNotFound() {
         UserDto userToUpdate = new UserDto(
                 1L,
                 null,
@@ -181,7 +183,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void deleteUser_whenInvoked_thenInvokeUserRepositoryDeleteById() {
+    void deleteUser_shouldInvokeUserRepositoryDeleteById_whenInvoked() {
         Long userId = 1L;
         Mockito.when(userRepository.findById(userId))
                 .thenReturn(Optional.of(user1));
@@ -191,7 +193,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void deleteUser_whenUserNotFound_thenThrowsNotFoundException() {
+    void deleteUser_shouldThrowsNotFoundException_whenUserNotFound() {
         Long userId = 1L;
         Mockito.when(userRepository.findById(userId))
                 .thenReturn(Optional.empty());
@@ -204,7 +206,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void checkIfUserExist_whenUserFound_thenReturnUser() {
+    void checkIfUserExist_shouldReturnUser_whenUserFound() {
         Long userId = 1L;
         Mockito.when(userRepository.findById(userId))
                 .thenReturn(Optional.of(user1));
@@ -216,7 +218,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void checkIfUserExist_whenUserNotFound_thenThrowsNotFoundException() {
+    void checkIfUserExist_shouldThrowsNotFoundException_whenUserNotFound() {
         Long userId = 1L;
         Mockito.when(userRepository.findById(userId))
                 .thenReturn(Optional.empty());

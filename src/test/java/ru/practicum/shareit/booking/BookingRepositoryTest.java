@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+@TestPropertySource(properties = {"db.name=test"})
 public class BookingRepositoryTest {
     @Autowired
     private UserRepository userRepository;
@@ -89,7 +91,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void findAllByBookerIdOrderByIdDesc_whenFound_thenReturnListOfBookings() {
+    void findAllByBookerIdOrderByIdDesc_shouldReturnListOfBookings_whenFound() {
         List<Booking> actualBookings = bookingRepository
                 .findAllByBookerIdIsOrderByIdDesc(booker.getId(), PageRequest.of(0, 10));
 
@@ -97,7 +99,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void findAllByBookerIdOrderByIdDesc_whenNotFound_thenReturnEmptyList() {
+    void findAllByBookerIdOrderByIdDesc_shouldReturnEmptyList_whenNotFound() {
         List<Booking> actualBookings = bookingRepository
                 .findAllByBookerIdIsOrderByIdDesc(owner.getId(), PageRequest.of(0, 10));
 
@@ -105,7 +107,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void findAllRejected_whenInvoked_thenReturnListOfBookings() {
+    void findAllRejected_shouldReturnListOfBookings_whenInvoked() {
         lastBooking.setStatus(Status.REJECTED);
         bookingRepository.save(lastBooking);
 
@@ -114,25 +116,25 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void findAllWaiting_whenInvoked_thenReturnListOfBookings() {
+    void findAllWaiting_shouldReturnListOfBookings_whenInvoked() {
         List<Booking> actualBookings = bookingRepository.findAllWaitingBookings(booker.getId());
         assertEquals(1, actualBookings.size());
     }
 
     @Test
-    void findAllFutureBookings_whenInvoked_thenReturnListOfBookings() {
+    void findAllFutureBookings_shouldReturnListOfBookings_whenInvoked() {
         List<Booking> actualBookings = bookingRepository.findAllFutureBookings(booker.getId(), LocalDateTime.now());
         assertEquals(1, actualBookings.size());
     }
 
     @Test
-    void findAllPastBookings_whenInvoked_thenReturnListOfBookings() {
+    void findAllPastBookings_shouldReturnListOfBookings_whenInvoked() {
         List<Booking> actualBookings = bookingRepository.findAllPastBookings(booker.getId(), LocalDateTime.now());
         assertEquals(1, actualBookings.size());
     }
 
     @Test
-    void findAllCurrentBookings_whenInvoked_thenReturnListOfBookings() {
+    void findAllCurrentBookings_shouldReturnListOfBookings_whenInvoked() {
         nextBooking.setStart(LocalDateTime.now().minusDays(1));
         bookingRepository.save(nextBooking);
 
@@ -141,28 +143,28 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void findAllOwnersBookings_whenInvoked_thenReturnListOfBookings() {
+    void findAllOwnersBookings_shouldReturnListOfBookings_whenInvoked() {
         List<Booking> actualBookings = bookingRepository
                 .findAllOwnerBookings(owner.getId(), PageRequest.of(0, 10));
         assertEquals(2, actualBookings.size());
     }
 
     @Test
-    void findAllOwnersPastBookings_whenInvoked_thenReturnListOfBookings() {
+    void findAllOwnersPastBookings_shouldReturnListOfBookings_whenInvoked() {
         List<Booking> actualBookings = bookingRepository
                 .findAllOwnerPastBookings(owner.getId(), LocalDateTime.now());
         assertEquals(1, actualBookings.size());
     }
 
     @Test
-    void findAllOwnersFutureBookings_whenInvoked_thenReturnListOfBookings() {
+    void findAllOwnersFutureBookings_shouldReturnListOfBookings_whenInvoked() {
         List<Booking> actualBookings = bookingRepository
                 .findAllOwnerFutureBookings(owner.getId(), LocalDateTime.now());
         assertEquals(1, actualBookings.size());
     }
 
     @Test
-    void findAllOwnersCurrentBookings_whenInvoked_thenReturnListOfBookings() {
+    void findAllOwnersCurrentBookings_shouldReturnListOfBookings_whenInvoked() {
         nextBooking.setStart(LocalDateTime.now().minusDays(1));
         bookingRepository.save(nextBooking);
 
@@ -172,7 +174,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void findAllOwnersRejected_whenInvoked_thenReturnListOfBookings() {
+    void findAllOwnersRejected_shouldReturnListOfBookings_whenInvoked() {
         lastBooking.setStatus(Status.REJECTED);
         bookingRepository.save(lastBooking);
 
@@ -182,7 +184,7 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void findAllOwnersWaiting_whenInvoked_thenReturnListOfBookings() {
+    void findAllOwnersWaiting_shouldReturnListOfBookings_whenInvoked() {
         List<Booking> actualBookings = bookingRepository
                 .findAllOwnerWaitingBookings(owner.getId());
         assertEquals(1, actualBookings.size());
