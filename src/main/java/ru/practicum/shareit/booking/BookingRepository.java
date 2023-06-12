@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -9,7 +10,6 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    // а все запросы надо править или только один?
     @Query(value = "SELECT * " +
             "FROM bookings AS b " +
             "WHERE b.item_id = ?1 " +
@@ -28,7 +28,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "LIMIT 1", nativeQuery = true)
     Optional<Booking> getItemNextBooking(Long itemId, LocalDateTime localDateTime);
 
-    List<Booking> findAllByBookerIdIsOrderByIdDesc(Long id);
+    List<Booking> findAllByBookerIdIsOrderByIdDesc(Long id, Pageable pageable);
 
     @Query(" SELECT b " +
             "FROM Booking b " +
@@ -69,7 +69,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "FROM Booking b " +
             "WHERE b.item.owner.id = ?1 " +
             "ORDER BY b.id DESC")
-    List<Booking> findAllOwnerBookings(Long userId);
+    List<Booking> findAllOwnerBookings(Long userId, Pageable pageable);
 
     @Query(" SELECT b " +
             "FROM Booking b " +

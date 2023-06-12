@@ -25,15 +25,17 @@ public class ItemDto {
     @NotNull
     private Boolean available;
     private Long owner;
+    private Long requestId;
     private List<CommentDto> comments;
     private BookingInfoDto lastBooking;
     private BookingInfoDto nextBooking;
 
-    public ItemDto(Long id, String name, String description, Boolean available, Long userId) {
+    public ItemDto(Long id, String name, String description, Boolean available, Long userId, Long requestId) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;
         this.owner = userId;
+        this.requestId = requestId;
     }
 }

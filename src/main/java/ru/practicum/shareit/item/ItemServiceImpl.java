@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -14,6 +15,8 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentMapper;
 import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
@@ -29,10 +32,11 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
 
-    private final ItemRepository itemJpaRepository;
+    private final ItemRepository itemRepository;
     private final UserService userService;
     private final CommentRepository commentJpaRepository;
     private final BookingRepository bookingJpaRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Transactional
     @Override
@@ -40,10 +44,20 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.dtoToItem(itemDto);
 
         User owner = userService.getUserIfExist(userId);
-
         item.setOwner(owner);
 
-        return ItemMapper.itemToDto(itemJpaRepository.save(item));
+        if (itemDto.getRequestId() != null) {
+            Optional<ItemRequest> request = itemRequestRepository.findById(itemDto.getRequestId());
+            if (request.isEmpty()) {
+                throw new NotFoundException("Request does not exist.");
+            }
+
+            item.setRequest(request.get());
+
+            return ItemMapper.itemToDto(itemRepository.save(item));
+        }
+
+        return ItemMapper.itemToDto(itemRepository.save(item));
     }
 
     @Transactional
@@ -66,7 +80,7 @@ public class ItemServiceImpl implements ItemService {
             itemToUpdate.setAvailable(itemDto.getAvailable());
         }
 
-        return ItemMapper.itemToDto(itemJpaRepository.save(itemToUpdate));
+        return ItemMapper.itemToDto(itemRepository.save(itemToUpdate));
     }
 
     @Transactional
@@ -93,9 +107,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public List<ItemDto> getItemsByOwner(Long userId) {
+    public List<ItemDto> getItemsByOwner(Long userId, Long from, Integer size) {
+        int startPage = Math.toIntExact(from / size);
 
-        List<ItemDto> ownerItems = itemJpaRepository.findAllByOwnerIdIsOrderById(userId)
+        List<ItemDto> ownerItems = itemRepository.findAllByOwnerIdIsOrderById(userId, PageRequest.of(startPage, size))
                 .stream()
                 .map(ItemMapper::itemToDto)
                 .collect(Collectors.toList());
@@ -117,11 +132,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public List<ItemDto> searchItems(String text) {
+    public List<ItemDto> searchItems(String text, Long from, Integer size) {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
-        List<Item> items = itemJpaRepository.search(text.toLowerCase());
+        int startPage = Math.toIntExact(from / size);
+        List<Item> items = itemRepository.search(text.toLowerCase(), PageRequest.of(startPage, size));
 
         return items.stream()
                 .map(ItemMapper::itemToDto)
@@ -172,11 +188,21 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public Item getItemIfExist(Long itemId) {
-        Optional<Item> item = itemJpaRepository.findById(itemId);
+        Optional<Item> item = itemRepository.findById(itemId);
         if (item.isEmpty()) {
             throw new NotFoundException("Item with id " + itemId + " not found.");
         }
 
         return item.get();
+    }
+
+    @Override
+    public List<Item> getItemsByRequestIdIn(List<Long> requestIds) {
+        return itemRepository.findAllByRequestIdIn(requestIds);
+    }
+
+    @Override
+    public List<Item> getItemsByRequestIdIs(Long requestId) {
+        return itemRepository.findAllByRequestIdIs(requestId);
     }
 }
